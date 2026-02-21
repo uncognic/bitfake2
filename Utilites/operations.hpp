@@ -5,6 +5,8 @@
 using namespace ConsoleOut;
 #include "filechecks.hpp"
 namespace fc = FileChecks;
+#include <array>
+#include <string_view>
 #include <filesystem>
 namespace fs = std::filesystem;
 
@@ -23,16 +25,6 @@ namespace Operations
         DSS, DVF, M4B, M4P, MMF, MPC, MSV,
         NMF, OGA, RAW, RF64, SLN, TTA, VOC,
         VOX, WV, WEBM, SVX8, CDA
-    };
-    using AudioExtensionArray = std::array<std::string_view, 33>;
-
-    constexpr AudioExtensionArray validAudioExtensions =
-    {
-        "mp3", "ogg", "m4a", "wav", "flac", "aac", "wma", 
-        "opus", "aiff", "au", "ra", "3ga", "amr", "awb", 
-        "dss", "dvf", "m4b", "m4p", "mmf", "mpc", "msv", 
-        "nmf", "oga", "raw", "rf64", "sln", "tta", "voc", 
-        "vox", "wv", "webm", "8svx", "cda"
     };
 
     struct AudioMetadata
@@ -63,12 +55,12 @@ namespace Operations
     // Function Declarations:
     
     // Helper functions
-    constexpr AudioMetadata GetMetaData(const fs::path& path);
-    constexpr ReplayGainInfo GetReplayGain(const fs::path& path);
-    constexpr MusicBrainzInfo GetMusicBrainzInfo(const fs::path& path);
+    AudioMetadata GetMetaData(const fs::path& path);
+    ReplayGainInfo GetReplayGain(const fs::path& path);
+    MusicBrainzInfo GetMusicBrainzInfo(const fs::path& path);
     
     // Core operations
-    constexpr void ConvertToFileType(const fs::path& inputPath, const fs::path& outputPath, AudioFormat format);
+    void ConvertToFileType(const fs::path& inputPath, const fs::path& outputPath, AudioFormat format);
 
 
 }

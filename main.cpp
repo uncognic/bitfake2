@@ -9,10 +9,8 @@ namespace fs = std::filesystem;
 namespace fc = FileChecks;
 #include "Utilites/operations.hpp"
 namespace op = Operations;
-
-fs::path inputFile;
-fs::path outputFile;
-op::AudioFormat outputFormat;
+#include "Utilites/globals.hpp"
+namespace gb = globals;
 
 
 int main(int argc, char* argv[])
@@ -39,7 +37,7 @@ int main(int argc, char* argv[])
                     if (i + 1 < argc) {
                         plog("Input file specified in flag: ");
                         yay(argv[i + 1]);
-                        inputFile = argv[i + 1];
+                        gb::inputFile = argv[i + 1];
                         i++; // Skip the next argument since it's the input file
                     } else {
                         err("Input flag provided but no input file specified!");
@@ -52,7 +50,7 @@ int main(int argc, char* argv[])
                     if (i + 1 < argc) {
                         plog("Output path specified in flag: ");
                         yay(argv[i + 1]);
-                        outputFile = argv[i + 1];
+                        gb::outputFile = argv[i + 1];
                         i++; // Skip the next argument since it's the output file
                     } else {
                         err("Output flag provided but no output file specified!");
@@ -79,37 +77,37 @@ int main(int argc, char* argv[])
 
     // File checks before handing it off to the 2nd pass
 
-    if (fc::IsValidAudioFile(inputFile) && fc::IsValidAudioFile(outputFile))
-    {
-        yay("Inputted files are valid audio files based on extension.");
-        plog("Deeper checks will be performed in senstive operations.");
-    } 
-    else if (!fc::IsValidAudioFile(inputFile))
-    {
-        if (!fc::ParentExists(inputFile))
-        {
-            err("Input file does not exist and parent directory does not exist either!");
-            return EXIT_FAILURE;
-        }
-        else
-        {
-            err("Input file does not exist! Please check the path and try again.");
-            return EXIT_FAILURE;
-        }
-    } 
-    else if (!fc::IsValidAudioFile(outputFile))
-    {
-        if (!fc::ParentExists(outputFile))
-        {
-            err("Output file does not exist and parent directory does not exist either!");
-            return EXIT_FAILURE;
-        }
-        else
-        {
-            err("Output file does not exist! Please check the path and try again.");
-            return EXIT_FAILURE;
-        }
-    }
+    // if (fc::IsValidAudioFile(inputFile) && fc::IsValidAudioFile(outputFile))
+    // {
+    //     yay("Inputted files are valid audio files based on extension.");
+    //     plog("Deeper checks will be performed in senstive operations.");
+    // } 
+    // else if (!fc::IsValidAudioFile(inputFile))
+    // {
+    //     if (!fc::ParentExists(inputFile))
+    //     {
+    //         err("Input file does not exist and parent directory does not exist either!");
+    //         return EXIT_FAILURE;
+    //     }
+    //     else
+    //     {
+    //         err("Input file does not exist! Please check the path and try again.");
+    //         return EXIT_FAILURE;
+    //     }
+    // } 
+    // else if (!fc::IsValidAudioFile(outputFile))
+    // {
+    //     if (!fc::ParentExists(outputFile))
+    //     {
+    //         err("Output file does not exist and parent directory does not exist either!");
+    //         return EXIT_FAILURE;
+    //     }
+    //     else
+    //     {
+    //         err("Output file does not exist! Please check the path and try again.");
+    //         return EXIT_FAILURE;
+    //     }
+    // }2
 
     // 2nd Passin
 
@@ -123,7 +121,17 @@ int main(int argc, char* argv[])
 
     for (int j = 1; j < argc; j++)
     {
-        continue; // Placeholder for 2nd pass command handling, which will be implemented later.
+         if (strcmp(argv[j], "-gmd") == 0 || strcmp(argv[j], "--getmetadata") == 0)
+         {
+            op::AudioMetadata metadata = op::GetMetaData(gb::inputFile);
+            plog("Metadata for input file: ");
+            yay(metadata.title.c_str());
+            yay(metadata.artist.c_str());
+            yay(metadata.album.c_str());
+            yay(metadata.genre.c_str());
+            yay(metadata.year.c_str());
+
+         }
     }
 
     return 0;
