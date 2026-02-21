@@ -77,45 +77,36 @@ int main(int argc, char* argv[])
 
     // File checks before handing it off to the 2nd pass
 
-    // if (fc::IsValidAudioFile(inputFile) && fc::IsValidAudioFile(outputFile))
-    // {
-    //     yay("Inputted files are valid audio files based on extension.");
-    //     plog("Deeper checks will be performed in senstive operations.");
-    // } 
-    // else if (!fc::IsValidAudioFile(inputFile))
-    // {
-    //     if (!fc::ParentExists(inputFile))
-    //     {
-    //         err("Input file does not exist and parent directory does not exist either!");
-    //         return EXIT_FAILURE;
-    //     }
-    //     else
-    //     {
-    //         err("Input file does not exist! Please check the path and try again.");
-    //         return EXIT_FAILURE;
-    //     }
-    // } 
-    // else if (!fc::IsValidAudioFile(outputFile))
-    // {
-    //     if (!fc::ParentExists(outputFile))
-    //     {
-    //         err("Output file does not exist and parent directory does not exist either!");
-    //         return EXIT_FAILURE;
-    //     }
-    //     else
-    //     {
-    //         err("Output file does not exist! Please check the path and try again.");
-    //         return EXIT_FAILURE;
-    //     }
-    // }2
+    if (gb::outputFile.empty())
+    {
+        plog("No output file specified. Output will be sent to terminal.");
+        gb::outputToTerminal = true;
+    }
+    else if (gb::outputFile.extension() != ".txt")
+    {
+        warn("Output file must have .txt extension! Output will be sent to terminal instead.");
+        gb::outputToTerminal = true;
+    }
+    else if (!fc::ParentExists(gb::outputFile))
+    {
+        err("Output file parent directory does not exist!");
+        return EXIT_FAILURE;
+    }
+    else
+    {
+        plog("Output file will be created/written to: ");
+        yay(gb::outputFile.c_str());
+        gb::outputToTerminal = false;
+    }
+    
 
-    // 2nd Passin
+    if (!fs::exists(gb::inputFile))
+    {
+        err("Input file does not exist or is not a valid audio file!");
+        err("Try again :(");
+        return EXIT_FAILURE;
+    }
 
-    // Tested and works
-    // if (fc::IsTrueAudio(inputFile))
-    // {
-    //     yay("Inputted files are valid audio files based on file signatures! This is a good sign :D");
-    // }
 
     // 2nd pass
 
@@ -123,14 +114,43 @@ int main(int argc, char* argv[])
     {
          if (strcmp(argv[j], "-gmd") == 0 || strcmp(argv[j], "--getmetadata") == 0)
          {
-            op::AudioMetadata metadata = op::GetMetaData(gb::inputFile);
-            plog("Metadata for input file: ");
-            yay(metadata.title.c_str());
-            yay(metadata.artist.c_str());
-            yay(metadata.album.c_str());
-            yay(metadata.genre.c_str());
-            yay(metadata.year.c_str());
+            std::vector<op::AudioMetadataResult> results = op::GetMetaDataList(gb::inputFile);
+            if (results.empty())
+            {
+                err("No metadata found for input path.");
+                return EXIT_FAILURE;
+            }
 
+            plog("Metadata for input file(s): ");
+
+            if (gb::outputToTerminal) {
+                for (const auto& result : results)
+                {
+                    printf("----------------------\n");
+                    printf("Title: %s\n", result.metadata.title.c_str());
+                    printf("Artist: %s\n", result.metadata.artist.c_str());
+                    printf("Album: %s\n", result.metadata.album.c_str());
+                    printf("Genre: %s\n", result.metadata.genre.c_str());
+                    printf("Year: %s\n", result.metadata.year.c_str());
+                }
+            } else {
+                FILE* outFile = fopen(gb::outputFile.string().c_str(), "w");
+                if (!outFile) {
+                    err("Failed to open output file for writing.");
+                    return EXIT_FAILURE;
+                }
+                for (const auto& result : results)
+                {
+                    fprintf(outFile, "----------------------\n");
+                    fprintf(outFile, "Title: %s\n", result.metadata.title.c_str());
+                    fprintf(outFile, "Artist: %s\n", result.metadata.artist.c_str());
+                    fprintf(outFile, "Album: %s\n", result.metadata.album.c_str());
+                    fprintf(outFile, "Genre: %s\n", result.metadata.genre.c_str());
+                    fprintf(outFile, "Year: %s\n", result.metadata.year.c_str());
+                }
+                fclose(outFile);
+                yay("Metadata written to output file successfully.");
+            }
          }
     }
 

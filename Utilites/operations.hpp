@@ -7,6 +7,7 @@ using namespace ConsoleOut;
 namespace fc = FileChecks;
 #include <array>
 #include <string_view>
+#include <vector>
 #include <filesystem>
 namespace fs = std::filesystem;
 
@@ -36,6 +37,12 @@ namespace Operations
         std::string year;
     };
 
+    struct AudioMetadataResult
+    {
+        fs::path path;
+        AudioMetadata metadata;
+    };
+
     struct ReplayGainInfo
     {
         float trackGain;
@@ -56,6 +63,7 @@ namespace Operations
     
     // Helper functions
     AudioMetadata GetMetaData(const fs::path& path);
+    std::vector<AudioMetadataResult> GetMetaDataList(const fs::path& path);
     ReplayGainInfo GetReplayGain(const fs::path& path);
     MusicBrainzInfo GetMusicBrainzInfo(const fs::path& path);
     

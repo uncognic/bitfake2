@@ -5,4 +5,5 @@ namespace globals
     fs::path inputFile;
     fs::path outputFile;
     op::AudioFormat outputFormat = op::AudioFormat::MP3;
+    bool outputToTerminal = true;
 }

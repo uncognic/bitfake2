@@ -12,5 +12,6 @@ namespace globals
 	extern fs::path inputFile;
 	extern fs::path outputFile;
 	extern op::AudioFormat outputFormat;
+	extern bool outputToTerminal;
 }
 #endif

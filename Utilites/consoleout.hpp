@@ -25,7 +25,7 @@ namespace ConsoleOut
     inline void warn(const char* msg)
     {
         if (msg[0] != '\0') {
-            printf("%s[WARN]\t%s%s\n", YELLOW, RESET, msg);
+            printf("%s[WRN]\t%s%s\n", YELLOW, RESET, msg);
         }
     }
     inline void plog(const char* msg) // Pretty log :D

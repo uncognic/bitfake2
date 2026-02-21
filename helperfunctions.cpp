@@ -57,7 +57,46 @@ namespace Operations
             tmpdata.year = std::to_string(tag->year());
         }
 
+
+
         return tmpdata;
+    }
+
+    std::vector<AudioMetadataResult> GetMetaDataList(const fs::path& path)
+    {
+        std::vector<AudioMetadataResult> results;
+
+        if (!fs::exists(path))
+        {
+            warn("Metadata list failed: input path does not exist.");
+            return results;
+        }
+
+        if (fs::is_directory(path))
+        {
+            for (const auto& entry : fs::directory_iterator(path))
+            {
+                if (fc::IsValidAudioFile(entry.path()))
+                {
+                    results.push_back({entry.path(), GetMetaData(entry.path())});
+                }
+            }
+
+            if (results.empty())
+            {
+                warn("Metadata list: no valid audio files found in directory.");
+            }
+            return results;
+        }
+
+        if (!fc::IsValidAudioFile(path))
+        {
+            warn("Metadata list failed: input file is not a valid audio file.");
+            return results;
+        }
+
+        results.push_back({path, GetMetaData(path)});
+        return results;
     }
 }
 // constexpr AudioMetadata GetMetaData(const fs::path& path);
