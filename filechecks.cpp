@@ -44,9 +44,6 @@ bool IsValidAudioFile(const fs::path& path)
 // bool IsTrueAudio(const fs::path& path);
 bool IsTrueAudio(const fs::path& path)
 {
-    // This function checks the file signature (magic numbers) to verify if it's a true audio file.
-    // For simplicity, we'll check for a few common audio formats. In a real implementation, you would
-    // want to check for more formats and handle edge cases.
 
     if (!fs::exists(path) || !fs::is_regular_file(path)) {
         warn("File does not exist or is not a regular file.");

@@ -7,9 +7,12 @@ using namespace ConsoleOut;
 namespace fs = std::filesystem;
 #include "Utilites/filechecks.hpp"
 namespace fc = FileChecks;
+#include "Utilites/operations.hpp"
+namespace op = Operations;
 
 fs::path inputFile;
 fs::path outputFile;
+op::AudioFormat outputFormat;
 
 
 int main(int argc, char* argv[])
@@ -57,6 +60,18 @@ int main(int argc, char* argv[])
                     }
                 }
 
+                if (strcmp(argv[i], "--format") == 0 || strcmp(argv[i], "-f") == 0) 
+                {
+                    if (i + 1 < argc) {
+                        plog("Output format specified in flag: ");
+                        yay(argv[i + 1]);
+                        i++; // Skip the next argument since it's the format
+                    } else {
+                        err("Format flag provided but no format specified!");
+                        return EXIT_FAILURE;
+                    }
+                }
+
                 // This first pass is only for grabbing input and output files, so we can apply it to other commands later!
                 break;
         }
@@ -68,7 +83,8 @@ int main(int argc, char* argv[])
     {
         yay("Inputted files are valid audio files based on extension.");
         plog("Deeper checks will be performed in senstive operations.");
-    } else if (!fc::IsValidAudioFile(inputFile))
+    } 
+    else if (!fc::IsValidAudioFile(inputFile))
     {
         if (!fc::ParentExists(inputFile))
         {
@@ -80,7 +96,8 @@ int main(int argc, char* argv[])
             err("Input file does not exist! Please check the path and try again.");
             return EXIT_FAILURE;
         }
-    } else if (!fc::IsValidAudioFile(outputFile))
+    } 
+    else if (!fc::IsValidAudioFile(outputFile))
     {
         if (!fc::ParentExists(outputFile))
         {
@@ -96,10 +113,17 @@ int main(int argc, char* argv[])
 
     // 2nd Passin
 
+    // Tested and works
+    // if (fc::IsTrueAudio(inputFile))
+    // {
+    //     yay("Inputted files are valid audio files based on file signatures! This is a good sign :D");
+    // }
 
-    if (fc::IsTrueAudio(inputFile))
+    // 2nd pass
+
+    for (int j = 1; j < argc; j++)
     {
-        yay("Inputted files are valid audio files based on file signatures! This is a good sign :D");
+        continue; // Placeholder for 2nd pass command handling, which will be implemented later.
     }
 
     return 0;
