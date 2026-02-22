@@ -127,7 +127,7 @@ int main(int argc, char* argv[])
                 for (const auto& result : results)
                 {
                     printf("----------------------\n");
-                    printf("Title: %s\n", result.metadata.title.c_str());
+                    printf("Track #%d: %s\n", result.metadata.trackNumber, result.metadata.title.c_str());
                     printf("Artist: %s\n", result.metadata.artist.c_str());
                     printf("Album: %s\n", result.metadata.album.c_str());
                     printf("Genre: %s\n", result.metadata.genre.c_str());
@@ -142,7 +142,7 @@ int main(int argc, char* argv[])
                 for (const auto& result : results)
                 {
                     fprintf(outFile, "----------------------\n");
-                    fprintf(outFile, "Title: %s\n", result.metadata.title.c_str());
+                    fprintf(outFile, "Track #%d: %s\n", result.metadata.trackNumber, result.metadata.title.c_str());
                     fprintf(outFile, "Artist: %s\n", result.metadata.artist.c_str());
                     fprintf(outFile, "Album: %s\n", result.metadata.album.c_str());
                     fprintf(outFile, "Genre: %s\n", result.metadata.genre.c_str());
@@ -150,6 +150,47 @@ int main(int argc, char* argv[])
                 }
                 fclose(outFile);
                 yay("Metadata written to output file successfully.");
+            }
+        }
+
+        if (strcmp(argv[j], "-grg") == 0 || strcmp(argv[j], "--getreplaygain") == 0)
+        {
+            std::vector<op::ReplayGainResult> results = op::GetReplayGainList(gb::inputFile);
+            if (results.empty())
+            {
+                err("No ReplayGain information found for input path.");
+                return EXIT_FAILURE;
+            }
+
+            plog("ReplayGain information for input file(s): ");
+
+            if (gb::outputToTerminal) {
+                for (const auto& result : results)
+                {
+                    printf("----------------------\n");
+                    printf("Track #%d: %s\n", result.info.trackNumber, result.info.title.c_str());
+                    printf("Track Gain: %f\n", result.info.trackGain);
+                    printf("Track Peak: %f\n", result.info.trackPeak);
+                    printf("Album Gain: %f\n", result.info.albumGain);
+                    printf("Album Peak: %f\n", result.info.albumPeak);
+                }
+            } else {
+                FILE* outFile = fopen(gb::outputFile.string().c_str(), "w");
+                if (!outFile) {
+                    err("Failed to open output file for writing.");
+                    return EXIT_FAILURE;
+                }
+                for (const auto& result : results)
+                {
+                    fprintf(outFile, "----------------------\n");
+                    fprintf(outFile, "Track #%d: %s\n", result.info.trackNumber, result.info.title.c_str());
+                    fprintf(outFile, "Track Gain: %f\n", result.info.trackGain);
+                    fprintf(outFile, "Track Peak: %f\n", result.info.trackPeak);
+                    fprintf(outFile, "Album Gain: %f\n", result.info.albumGain);
+                    fprintf(outFile, "Album Peak: %f\n", result.info.albumPeak);
+                }
+                fclose(outFile);
+                yay("ReplayGain information written to output file successfully.");
             }
          }
     }

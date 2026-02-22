@@ -35,6 +35,7 @@ namespace Operations
         std::string album;
         std::string genre;
         std::string year;
+        int trackNumber = 0;
     };
 
     struct AudioMetadataResult
@@ -45,10 +46,20 @@ namespace Operations
 
     struct ReplayGainInfo
     {
+        std::string title;
+        std::string artist;
+        std::string album;
+        int trackNumber;
         float trackGain;
         float trackPeak;
         float albumGain;
         float albumPeak;
+    };
+
+    struct ReplayGainResult
+    {
+        fs::path path;
+        ReplayGainInfo info;
     };
 
     struct MusicBrainzInfo
@@ -65,6 +76,7 @@ namespace Operations
     AudioMetadata GetMetaData(const fs::path& path);
     std::vector<AudioMetadataResult> GetMetaDataList(const fs::path& path);
     ReplayGainInfo GetReplayGain(const fs::path& path);
+    std::vector<ReplayGainResult> GetReplayGainList(const fs::path& path);
     MusicBrainzInfo GetMusicBrainzInfo(const fs::path& path);
     
     // Core operations
