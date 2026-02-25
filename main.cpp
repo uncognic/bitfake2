@@ -1,4 +1,3 @@
-#include <stdio.h>
 #include <cstdlib>
 #include "Utilites/consoleout.hpp"
 using namespace ConsoleOut;
@@ -70,6 +69,7 @@ int main(int argc, char* argv[])
                     if (i + 1 < argc) {
                         plog("Output format specified in flag: ");
                         yay(argv[i + 1]);
+                        
                         i++; // Skip the next argument since it's the format
                     } else {
                         err("Format flag provided but no format specified!");

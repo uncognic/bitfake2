@@ -82,6 +82,9 @@ namespace Operations
     };
 
     // Function Declarations:
+
+    // Non-user functions
+    AudioFormat StringToAudioFormat(const std::string& str);
     
     // Helper functions
     AudioMetadata GetMetaData(const fs::path& path);
@@ -94,12 +97,8 @@ namespace Operations
     // Implemented later because it requires network access and more complex logic!!
     MusicBrainzInfo GetMusicBrainzInfo(const fs::path& path);
 
-
-    
     // Core operations
     void ConvertToFileType(const fs::path& inputPath, const fs::path& outputPath, AudioFormat format);
-
-
 }
 
 
