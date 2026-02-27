@@ -181,52 +181,6 @@ namespace Operations
         tmpdata.album = fileRef.tag()->album().to8Bit(true);
         tmpdata.trackNumber = fileRef.tag()->track();
 
-
-        // // Get Xiph comment for ReplayGain (works for Opus, Vorbis, FLAC, etc.)
-        // if (auto* xc = dynamic_cast<TagLib::Ogg::XiphComment*>(fileRef.file()->tag()))
-        // {
-        //     auto fields = xc->fieldListMap();
-            
-        //     // Extract ReplayGain values and remove the "dB" suffix
-        //     if (fields.find("REPLAYGAIN_TRACK_GAIN") != fields.end() && !fields["REPLAYGAIN_TRACK_GAIN"].isEmpty())
-        //     {
-        //         std::string gainStr = fields["REPLAYGAIN_TRACK_GAIN"][0].to8Bit(true);
-        //         // Remove " dB" suffix if present
-        //         gainStr = std::regex_replace(gainStr, std::regex(" dB$"), "");
-        //         try {
-        //             tmpdata.trackGain = std::stof(gainStr);
-        //         } catch (...) {}
-        //     }
-            
-        //     if (fields.find("REPLAYGAIN_TRACK_PEAK") != fields.end() && !fields["REPLAYGAIN_TRACK_PEAK"].isEmpty())
-        //     {
-        //         std::string peakStr = fields["REPLAYGAIN_TRACK_PEAK"][0].to8Bit(true);
-        //         try {
-        //             tmpdata.trackPeak = std::stof(peakStr);
-        //         } catch (...) {}
-        //     }
-            
-        //     if (fields.find("REPLAYGAIN_ALBUM_GAIN") != fields.end() && !fields["REPLAYGAIN_ALBUM_GAIN"].isEmpty())
-        //     {
-        //         std::string gainStr = fields["REPLAYGAIN_ALBUM_GAIN"][0].to8Bit(true);
-        //         gainStr = std::regex_replace(gainStr, std::regex(" dB$"), "");
-        //         try {
-        //             tmpdata.albumGain = std::stof(gainStr);
-        //         } catch (...) {}
-        //     }
-            
-        //     if (fields.find("REPLAYGAIN_ALBUM_PEAK") != fields.end() && !fields["REPLAYGAIN_ALBUM_PEAK"].isEmpty())
-        //     {
-        //         std::string peakStr = fields["REPLAYGAIN_ALBUM_PEAK"][0].to8Bit(true);
-        //         try {
-        //             tmpdata.albumPeak = std::stof(peakStr);
-        //         } catch (...) {}
-        //     }
-        // }
-
-        // It does not work. I am now sad. :(
-
-        // Get ReplayGain tags via ffprobe from both container and stream scopes.
         std::string ffprbCmd =
             "ffprobe -v error -select_streams a:0 "
             "-show_entries "
@@ -283,6 +237,8 @@ namespace Operations
         };
 
         char buffer[128];
+
+        // bafoony bools.ty
         bool foundTrackGain = false;
         bool foundTrackPeak = false;
         bool foundAlbumGain = false;

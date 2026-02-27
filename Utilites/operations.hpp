@@ -28,6 +28,14 @@ namespace Operations
         VOX, WV, WEBM, SVX8, CDA
     };
 
+    enum class VBRQualities
+    {
+        V0, V1, V2, V3, V4, V5, V6, V7, V8, V9, // MP3
+        Q0, Q3, Q6, Q9, Q10, // OGG VORBIS
+        L0, L1, L2, L3, L4, L5, L6, L7, L8 // FLAC encoding lvls (not rlly quality based but w/e)
+        // more to add l8r
+    };
+
     struct AudioMetadata
     {
         std::string title;
@@ -85,6 +93,8 @@ namespace Operations
 
     // Non-user functions
     AudioFormat StringToAudioFormat(const std::string& str);
+    VBRQualities StringToVBRQuality(const std::string& str);
+    void ApplyMetaDataTag(const fs::path& path, const std::string& tag, const std::string& value);
     
     // Helper functions
     AudioMetadata GetMetaData(const fs::path& path);
@@ -99,6 +109,10 @@ namespace Operations
 
     // Core operations
     void ConvertToFileType(const fs::path& inputPath, const fs::path& outputPath, AudioFormat format);
+    void MassTagDirectory(const fs::path& dirPath, const std::string& tag, const std::string& value);
+    void ApplyReplayGain(const fs::path& path, float trackGain, float albumGain);
+    void CalculateReplayGain(const fs::path& path); 
+
 }
 
 

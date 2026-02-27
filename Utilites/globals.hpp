@@ -13,7 +13,7 @@ namespace globals
 	extern fs::path outputFile;
 	extern op::AudioFormat outputFormat;
 	extern bool outputToTerminal;
-	extern op::AudioFormat desiredFormat;
+	extern op::VBRQualities VBRQuality;
 	extern std::string version;
 }
 #endif

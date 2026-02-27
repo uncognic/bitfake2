@@ -32,7 +32,7 @@ int main(int argc, char* argv[])
                     printf("  -h, --help              Show this help message\n");
                     printf("  -i, --input <file>      Input audio file path\n");
                     printf("  -o, --output <file>     Output file path (must be .txt)\n");
-                    printf("  -f, --format <format>   Output format (default: txt)\n");
+                    printf("  -f, --format <fmt[:q]>  Conversion type (e.g. mp3:V0, flac:L8, wav)\n");
                     printf("  -gmd, --getmetadata     Get metadata of input file\n");
                     printf("  -grg, --getreplaygain   Get ReplayGain information of input file\n");
                     return EXIT_SUCCESS;
@@ -67,12 +67,21 @@ int main(int argc, char* argv[])
                 if (strcmp(argv[i], "--format") == 0 || strcmp(argv[i], "-f") == 0) 
                 {
                     if (i + 1 < argc) {
-                        plog("Output format specified in flag: ");
-                        yay(argv[i + 1]);
-                        
+                        std::string formatStr = argv[i + 1];
+                        size_t colonPos = formatStr.find(':');
+                        if (colonPos != std::string::npos) {
+                            std::string qualityStr = formatStr.substr(colonPos + 1);
+                            formatStr = formatStr.substr(0, colonPos);
+                            gb::outputFormat = op::StringToAudioFormat(formatStr);
+                            gb::VBRQuality = op::StringToVBRQuality(qualityStr);
+                        } else {
+                            gb::outputFormat = op::StringToAudioFormat(formatStr);
+                        }
+                        // printf("format=%d quality=%d\n", static_cast<int>(gb::outputFormat), static_cast<int>(gb::VBRQuality));
                         i++; // Skip the next argument since it's the format
                     } else {
                         err("Format flag provided but no format specified!");
+                        warn("To use: -f/--format <format>:<quality> (e.g. -f mp3:V0, -f ogg:Q6, -f flac:L8)");
                         return EXIT_FAILURE;
                     }
                 }
@@ -80,7 +89,6 @@ int main(int argc, char* argv[])
                 if (strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "--version") == 0) 
                 {
                     printf("bitfake ver %s\n", gb::version.c_str());
-                    printf("License: GPL-3.0\n");
                     printf("ty for using my cli <3, enjoy :D\n");
                     return EXIT_SUCCESS;
                 }
@@ -88,6 +96,37 @@ int main(int argc, char* argv[])
                 // This first pass is only for grabbing input and output files, so we can apply it to other commands later!
                 break;
         }
+    }
+
+    // static_cast<int>(gb::outputFormat), static_cast<int>(gb::VBRQuality)
+    int fmt = static_cast<int>(gb::outputFormat);
+    int q = static_cast<int>(gb::VBRQuality);
+
+
+    // To the brave souls reading this code:
+    // if (fmt == 0 && (q < 0 || q > 9)) { /* MP3: V0..V9 */ }
+    // if (fmt == 1 && (q < 10 || q > 14)) { /* OGG: Q0..Q10 */ }
+    // if (fmt == 4 && (q < 15 || q > 23)) { /* FLAC: L0..L8 */ }
+
+    if (fmt == 0 && !static_cast<int>(gb::VBRQuality) < 0 || !static_cast<int>(gb::VBRQuality) > 8)
+    {
+        err("MP3 format requires a VBR quality between V0 and V8 (inclusive)! (Do not use Qx or Lx for MP3! :( )");
+        printf("format=%d quality=%d\n", static_cast<int>(gb::outputFormat), static_cast<int>(gb::VBRQuality));
+        return EXIT_FAILURE;
+    }
+
+    if (fmt == 1 && static_cast<int>(gb::VBRQuality) < 9 || !static_cast<int>(gb::VBRQuality) > 13)
+    {
+        err("OGG VORBIS format requires a VBR quality between Q0 and Q10 (inclusive)! (Do not use Vx or Lx for OGG! :( )");
+        printf("format=%d quality=%d\n", static_cast<int>(gb::outputFormat), static_cast<int>(gb::VBRQuality));
+        return EXIT_FAILURE;
+    }
+
+    if (fmt == 4 && !static_cast<int>(gb::VBRQuality) < 14 || !static_cast<int>(gb::VBRQuality) > 22)
+    {
+        err("FLAC format requires an encoding level between L0 and L8 (inclusive)! (Do not use Vx or Qx for FLAC! :( )");
+        printf("format=%d quality=%d\n", static_cast<int>(gb::outputFormat), static_cast<int>(gb::VBRQuality));
+        return EXIT_FAILURE;
     }
 
     // File checks before handing it off to the 2nd pass
@@ -121,8 +160,7 @@ int main(int argc, char* argv[])
         err("Try again :(");
         return EXIT_FAILURE;
     }
-
-
+    
     // 2nd pass
 
     for (int j = 1; j < argc; j++)
@@ -259,6 +297,6 @@ int main(int argc, char* argv[])
             }
         }
     }
-
+    
     return 0;
 }

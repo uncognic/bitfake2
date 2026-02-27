@@ -24,7 +24,7 @@ namespace Operations
         // a dictionary for mapping string to enum values.
 
         static const std::unordered_map<std::string, AudioFormat> formatMap = {
-            {"mp3", AudioFormat::MP3}, // fuck
+            {"mp3", AudioFormat::MP3}, // fuck (static int 0)
             {"ogg", AudioFormat::OGG},
             {"m4a", AudioFormat::M4A},
             {"wav", AudioFormat::WAV},
@@ -66,4 +66,52 @@ namespace Operations
         err("Invalid audio format string");
         exit(EXIT_FAILURE);
     }
+
+    VBRQualities StringToVBRQuality(const std::string& str)
+    {
+        std::string key = str;
+        std::transform(key.begin(), key.end(), key.begin(),
+            [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+
+        static const std::unordered_map<std::string, VBRQualities> vbrMap = {
+            {"v0", VBRQualities::V0}, // MP3 (0 - 8 static int)
+            {"v1", VBRQualities::V1},
+            {"v2", VBRQualities::V2},
+            {"v3", VBRQualities::V3},
+            {"v4", VBRQualities::V4},
+            {"v5", VBRQualities::V5},
+            {"v6", VBRQualities::V6},
+            {"v7", VBRQualities::V7},
+            {"v8", VBRQualities::V8},
+            {"v9", VBRQualities::V9},
+            {"q0", VBRQualities::Q0}, // OGG VORBIS (9 - 13 static int)
+            {"q3", VBRQualities::Q3},
+            {"q6", VBRQualities::Q6},
+            {"q9", VBRQualities::Q9},
+            {"q10", VBRQualities::Q10},
+            {"l0", VBRQualities::L0}, // FLAC encoding levels (14 - 22 static int)
+            {"l1", VBRQualities::L1},
+            {"l2", VBRQualities::L2},
+            {"l3", VBRQualities::L3},
+            {"l4", VBRQualities::L4},
+            {"l5", VBRQualities::L5},
+            {"l6", VBRQualities::L6},
+            {"l7", VBRQualities::L7},
+            {"l8", VBRQualities::L8}
+        };
+
+        auto it = vbrMap.find(key);
+        if (it != vbrMap.end()) {
+            return it->second;
+        }
+        err("Invalid VBR quality string");
+        warn("Are you converting into something thats not mp3/ogg/flac? If so, VBR quality is not applicable yet :(");
+        plog("Here's a list of valid VBR quality strings for supported formats:");
+        plog("MP3: V0, V1, V2, V3, V4, V5, V6, V7, V8, V9");
+        plog("OGG VORBIS: Q0, Q3, Q6, Q9, Q10");
+        plog("FLAC encoding levels: L0, L1, L2, L3, L4, L5, L6, L7, L8");
+        printf("hint: L8 is the slowest but highest compression level for FLAC, while V0 is the highest quality/slowest for MP3 :D\n");
+        exit(EXIT_FAILURE);
+    }
+
 }
