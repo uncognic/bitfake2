@@ -10,6 +10,10 @@ namespace fc = FileChecks;
 namespace op = Operations;
 #include "Utilites/globals.hpp"
 namespace gb = globals;
+#include <taglib/fileref.h>
+#include <taglib/tpropertymap.h>
+#include <taglib/tag.h>
+namespace tl = TagLib;
 
 
 int main(int argc, char* argv[])
@@ -33,6 +37,7 @@ int main(int argc, char* argv[])
                     printf("  -i, --input <file>\t\t Input audio file path\n");
                     printf("  -o, --output <file>\t\t Output file path (must be .txt)\n");
                     printf("  -po, --pathout <directory>\t Output directory path for conversion functions\n");
+                    printf("  -t, --tag <tag:val>\t\t Tag to apply to input file (e.g. -t title:NewTitle, -t REPLAY_GAIN_TRACK_GAIN:-12.35)\n");
                     printf("  -f, --format <fmt[:q]>\t Conversion type (e.g. mp3:V0, flac:L8, wav)\n");
                     printf("  -gmd, --getmetadata\t\t Get metadata of input file\n");
                     printf("  -grg, --getreplaygain\t\t Get ReplayGain information of input file\n");
@@ -89,6 +94,29 @@ int main(int argc, char* argv[])
                     }
                 }
 
+                if (strcmp(argv[i], "--tag") == 0 || strcmp(argv[i], "-t") == 0)
+                {
+                    if (i + 1 < argc) {
+                        std::string tagStr = argv[i + 1];
+                        size_t colonPos = tagStr.find(':');
+                        if (colonPos != std::string::npos) {
+                            std::string taggedValue = tagStr.substr(colonPos + 1);
+                            tagStr = tagStr.substr(0, colonPos);
+                            gb::tag = tagStr;
+                            gb::val = taggedValue;
+                            plog("Tag specified in flag: ");
+                            warn("Hey! This is a testing feature, you CAN technically use it, but I recommened use the Picard GUI as its much easier. :^)");
+                            yay((gb::tag + ":" + gb::val).c_str());
+                        } else {
+                            err("Tag flag provided but no tag value specified :^(");
+                            warn("pssst!! Use me like this: -t/--tag <tag:val> (e.g. -t title:NewTitle, -t REPLAY_GAIN_TRACK_GAIN:-12.35)");
+                            warn("Hey! This is a testing feature, you CAN technically use it, but I recommened use the Picard GUI as its much easier. :^)");
+                            return EXIT_FAILURE;
+                        }
+                        i++; // Skip the next argument since it's the tag value
+                    }
+                }
+
                 if (strcmp(argv[i], "--pathout") == 0 || strcmp(argv[i], "-po") == 0) 
                 {
                     if (i + 1 < argc) {
@@ -121,21 +149,21 @@ int main(int argc, char* argv[])
     // if (fmt == 1 && (q < 10 || q > 14)) { /* OGG: Q0..Q10 */ }
     // if (fmt == 4 && (q < 15 || q > 23)) { /* FLAC: L0..L8 */ }
 
-    if (fmt == 0 && static_cast<int>(gb::VBRQuality) < 0 || static_cast<int>(gb::VBRQuality) > 8)
+    if (fmt == 0 && (q < 0 || q > 9))
     {
-        err("MP3 format requires a VBR quality between V0 and V8 (inclusive)! (Do not use Qx or Lx for MP3! :( )");
+        err("MP3 format requires a VBR quality between V0 and V9 (inclusive)! (Do not use Qx or Lx for MP3! :( )");
         printf("format=%d quality=%d\n", static_cast<int>(gb::outputFormat), static_cast<int>(gb::VBRQuality));
         return EXIT_FAILURE;
     }
 
-    if (fmt == 1 && static_cast<int>(gb::VBRQuality) < 9 || static_cast<int>(gb::VBRQuality) > 13)
+    if (fmt == 1 && (q < 0 || q > 10))
     {
         err("OGG VORBIS format requires a VBR quality between Q0 and Q10 (inclusive)! (Do not use Vx or Lx for OGG! :( )");
         printf("format=%d quality=%d\n", static_cast<int>(gb::outputFormat), static_cast<int>(gb::VBRQuality));
         return EXIT_FAILURE;
     }
 
-    if (fmt == 4 && static_cast<int>(gb::VBRQuality) < 14 || static_cast<int>(gb::VBRQuality) > 22)
+    if (fmt == 4 && (q < 0 || q > 8))
     {
         err("FLAC format requires an encoding level between L0 and L8 (inclusive)! (Do not use Vx or Qx for FLAC! :( )");
         printf("format=%d quality=%d\n", static_cast<int>(gb::outputFormat), static_cast<int>(gb::VBRQuality));
@@ -326,11 +354,23 @@ int main(int argc, char* argv[])
             }
 
             // Commit it.
-            // pre-deffed test
-            op::ConvertToFileType(gb::inputFile, gb::conversionOutputDirectory, op::AudioFormat::MP3, op::VBRQualities::V0);
+            op::ConvertToFileType(gb::inputFile, gb::conversionOutputDirectory, gb::outputFormat, gb::VBRQuality);
         }
 
-    }
+        if (strcmp(argv[j], "-t") == 0 || strcmp(argv[j], "--tag") == 0)
+        {
+            tl::FileRef f(gb::inputFile.c_str());
+            if (f.isNull() || !f.tag()) {
+                err("Failed to open file for metadata commit");
+                return false;
+            }
+            tl::PropertyMap existingProps = f.file()->properties();
+            op::StageMetaDataChanges(existingProps, gb::tag, gb::val);
+            op::CommitMetaDataChanges(gb::inputFile, existingProps);
+            yay("Tag applied successfully!");
+        } 
     
+    }
+
     return 0;
 }

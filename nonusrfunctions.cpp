@@ -118,36 +118,30 @@ namespace Operations
         exit(EXIT_FAILURE);
     }
 
-    class MetaDataChange
+    void StageMetaDataChanges(tl::PropertyMap& drawer, std::string key, const std::string& value)
     {
-        public:
-            void StageMetaDataChanges(tl::PropertyMap& drawer, std::string key, const std::string& value)
-            {
-                std::transform(key.begin(), key.end(), key.begin(),
-                    [](unsigned char c) { return static_cast<char>(std::toupper(c)); });
-                drawer[key] = tl::String(value);
-            }
+        std::transform(key.begin(), key.end(), key.begin(),
+            [](unsigned char c) { return static_cast<char>(std::toupper(c)); });
+        drawer[key] = tl::String(value);
+    }
 
-            bool CommitMetaDataChanges(const std::filesystem::path& path, const tl::PropertyMap& drawer)
-            {
-                tl::FileRef f(path.c_str());
-                if (f.isNull() || !f.tag()) {
-                    err("Failed to open file for metadata commit");
-                    return false;
-                }
+    bool CommitMetaDataChanges(const std::filesystem::path& path, const tl::PropertyMap& drawer)
+    {
+        tl::FileRef f(path.c_str());
+        if (f.isNull() || !f.tag()) {
+            err("Failed to open file for metadata commit");
+            return false;
+        }
 
-                tl::PropertyMap existingProps = f.file()->properties();
-        
-                for(auto const& [key, val] : drawer) {
-                existingProps[key] = val;
-                }
+        tl::PropertyMap existingProps = f.file()->properties();
 
-                f.file()->setProperties(existingProps);
-                return f.file()->save();
-            }
+        for (auto const& [key, val] : drawer) {
+            existingProps[key] = val;
+        }
 
-
-    };
+        f.file()->setProperties(existingProps);
+        return f.file()->save();
+    }
 
 
 }
