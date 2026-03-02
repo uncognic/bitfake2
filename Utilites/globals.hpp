@@ -16,5 +16,6 @@ namespace globals
 	extern op::VBRQualities VBRQuality;
 	extern std::string version;
 	extern fs::path conversionOutputDirectory; // For storing converted files if -po/--pathout is specified
+	extern std::string tag, val;
 }
 #endif

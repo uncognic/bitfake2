@@ -118,7 +118,11 @@ namespace Operations
     std::vector<ReplayGainResult> GetReplayGainList(const fs::path& path);
     SpectralAnalysisResult SpectralAnalysis(const fs::path& path);
     std::vector<SpectralAnalysisResult> SpectralAnalysisList(const fs::path& path);
-    
+    bool InputHasAttachedCover(const fs::path& inputPath);
+    bool FormatSupportsAttachedCover(AudioFormat format);
+    bool HasFfmpegEncoder(const std::string& encoderName);
+    std::string OutputExtensionForFormat(AudioFormat format);
+
     // Implemented later because it requires network access and more complex logic!!
     MusicBrainzInfo GetMusicBrainzInfo(const fs::path& path);
 

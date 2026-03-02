@@ -535,7 +535,60 @@ namespace Operations
         return results;
     } // SpectralAnalysisList
 
-    
+    static bool InputHasAttachedCover(const fs::path& inputPath)
+    {
+        std::string probeCmd = "ffprobe -v error -select_streams v:0 -show_entries stream=codec_type -of csv=p=0 \"" + inputPath.string() + "\"";
+        FILE* pipe = popen(probeCmd.c_str(), "r");
+        if (!pipe) {
+            return false;
+        }
+
+        std::string output;
+        char buffer[256];
+        while (fgets(buffer, sizeof(buffer), pipe) != nullptr) {
+            output += buffer;
+        }
+        pclose(pipe);
+
+        return output.find("video") != std::string::npos;
+    }
+
+    static bool FormatSupportsAttachedCover(AudioFormat format)
+    {
+        return format == AudioFormat::MP3;
+    }
+
+    static bool HasFfmpegEncoder(const std::string& encoderName)
+    {
+        std::string probeCmd = "ffmpeg -hide_banner -encoders 2>/dev/null";
+        FILE* pipe = popen(probeCmd.c_str(), "r");
+        if (!pipe) {
+            return false;
+        }
+
+        std::string output;
+        char buffer[512];
+        while (fgets(buffer, sizeof(buffer), pipe) != nullptr) {
+            output += buffer;
+        }
+        pclose(pipe);
+
+        return output.find(" " + encoderName + " ") != std::string::npos;
+    }
+
+    static std::string OutputExtensionForFormat(AudioFormat format)
+    {
+        switch (format)
+        {
+            case AudioFormat::MP3: return ".mp3";
+            case AudioFormat::OGG: return ".ogg";
+            case AudioFormat::FLAC: return ".flac";
+            case AudioFormat::WAV: return ".wav";
+            case AudioFormat::OPUS: return ".opus";
+            case AudioFormat::AAC: return ".aac";
+            default: return ".audio";
+        }
+    }
 } // namespace Operations
 
 // constexpr AudioMetadata GetMetaData(const fs::path& path);

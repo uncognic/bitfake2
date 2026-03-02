@@ -41,7 +41,6 @@ namespace FileChecks
     bool IsValidAudioFile(const fs::path& path); // Checks via extensions
     bool IsTrueAudio(const fs::path& path); // Checks via file signatures for senstive operations (As described in filechecks.cpp)
     bool IsSpecficAudioFormat(const fs::path& path, op::AudioFormat format);
-    // More later
 
 }
 

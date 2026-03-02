@@ -9,4 +9,5 @@ namespace globals
     bool outputToTerminal = true;
     std::string version = "0.0.3-alpha"; // Pls dont change me :D
     fs::path conversionOutputDirectory;
+    std::string tag, val;
 }
