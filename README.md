@@ -151,4 +151,9 @@ Linker errors like `cannot find -ltag`, `cannot find -lfftw3`, `cannot find -leb
 Build fails due to missing headers:
 * Confirm you installed TagLib, FFTW3, libebur128, and libsndfile dev packages and are using a C++17 compiler.
 
-1
+
+<a href="https://github.com/ray17x/bitfake2/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=ray17x/bitfake2" />
+</a>
+
+Made with [contrib.rocks](https://contrib.rocks).
