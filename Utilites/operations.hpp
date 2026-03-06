@@ -143,7 +143,7 @@ namespace Operations
     void MassTagDirectory(const fs::path& dirPath, const std::string& tag, const std::string& value);
     void ApplyReplayGain(const fs::path& path, ReplayGainByTrack trackGainInfo, ReplayGainByAlbum albumGainInfo);
     ReplayGainByTrack CalculateReplayGainTrack(const fs::path& path); 
-    ReplayGainByAlbum CalculateReplayGainAlbum(const fs::path& path);
+    void CalculateReplayGainAlbum(const fs::path& path);
 }
 
 

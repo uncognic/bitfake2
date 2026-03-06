@@ -39,7 +39,7 @@ Build-time dependencies:
 * libsndfile development headers and library
 
 Run-time dependencies:
-* `ffmpeg` and `ffprobe` available in your `PATH`
+* `ffmpeg` and `ffprobe` available in your `PATH` (To be removed. See future plans)
 
 ## Installation
 1. Install all dependencies
