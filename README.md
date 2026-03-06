@@ -12,7 +12,8 @@ This project is still far from complete, but it is already effective.
 * Lossy diagnosis (banding score)
 * File Conversion (Works going TO .mp3 or .ogg)
 * Tagging metadata (Works for single files, but not directories yet)
-* Calculating Replaygain and applying it to files (Works for single files, but not directories yet)
+* Calculating Replaygain and applying it to files (Works for track replay gain iterating through directrories, album replay gain is a bit funky?)
+* Version info (WOW! BEST YET!)
 
 ## Implemented Development Features
 These features are meant to make contributing to the project easier:
@@ -25,8 +26,6 @@ These features are meant to make contributing to the project easier:
 ## Yet to Be Implemented
 * Directory conversion
 * Directory tagging
-* Replaygain for Album gain/peaks (currently only track gain/peaks is supported)
-* Replaygain for directories (both track and album gain)
 * MusicBrainz functionality
 
 ## Dependencies

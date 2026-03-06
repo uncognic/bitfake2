@@ -46,6 +46,7 @@ int main(int argc, char* argv[])
                     printf("  -grg, --getreplaygain\t\t Get ReplayGain information of input file\n");
                     printf("  -sa, --spectralanalysis\t Perform spectral analysis on input file\n");
                     printf("  -atrg, --applytrackreplaygain\t Calculate track replaygain and apply it to the file(s) (album gain will be left empty)\n");
+                    printf("  -arg, --applyalbumreplaygain\t Calculate album replaygain and apply it to the file(s) (track gain will be left empty)\n");
                     printf("  -v, --version\t\t\t Show program version\n");
                     return EXIT_SUCCESS;
                 }
