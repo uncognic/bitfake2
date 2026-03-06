@@ -185,7 +185,7 @@ namespace Operations
             "ffprobe -v error -select_streams a:0 "
             "-show_entries "
             "format_tags=REPLAYGAIN_TRACK_GAIN,REPLAYGAIN_TRACK_PEAK,REPLAYGAIN_ALBUM_GAIN,REPLAYGAIN_ALBUM_PEAK:"
-            "stream_tags=REPLAYGAIN_TRACK_GAIN,REPLAYGAIN_TRACK_PEAK,REPLAYGAIN_ALBUM_GAIN,REPLAYGAIN_ALBUM_PEAK "
+            "stream_tags=REPLAYGAIN_TRACK_GAIN,REPLAYGAIN_TRACK_PEAK,REPLAYGAIN_ALBUM_GAIN,REPLAYGAIN_ALBUM_PEAK"
             "-of default=noprint_wrappers=1 \"" + path.string() + "\"";
         FILE* pipe = popen(ffprbCmd.c_str(), "r");
         if (!pipe)

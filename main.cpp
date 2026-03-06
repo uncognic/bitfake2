@@ -3,6 +3,9 @@
 using namespace ConsoleOut;
 #include <filesystem>
 #include <cstring>
+#include <future>
+#include <thread>
+#include <atomic>
 namespace fs = std::filesystem;
 #include "Utilites/filechecks.hpp"
 namespace fc = FileChecks;
@@ -34,7 +37,7 @@ int main(int argc, char* argv[])
                     printf("Usage: ./bitfake2 [options]\n");
                     printf("Options:\n");
                     printf("  -h, --help\t\t\t Show this help message\n");
-                    printf("  -i, --input <file>\t\t Input audio file path\n");
+                    printf("  -i, --input <path>\t\t Input audio file or directory path\n");
                     printf("  -o, --output <file>\t\t Output file path (must be .txt)\n");
                     printf("  -po, --pathout <directory>\t Output directory path for conversion functions\n");
                     printf("  -t, --tag <tag:val>\t\t Tag to apply to input file (e.g. -t title:NewTitle, -t REPLAY_GAIN_TRACK_GAIN:-12.35)\n");
@@ -42,7 +45,8 @@ int main(int argc, char* argv[])
                     printf("  -gmd, --getmetadata\t\t Get metadata of input file\n");
                     printf("  -grg, --getreplaygain\t\t Get ReplayGain information of input file\n");
                     printf("  -sa, --spectralanalysis\t Perform spectral analysis on input file\n");
-                    printf("  -atrg, --applytrackreplaygain\t Calculate track replaygain and apply it to the file (album gain will be left empty)\n");
+                    printf("  -atrg, --applytrackreplaygain\t Calculate track replaygain and apply it to the file(s) (album gain will be left empty)\n");
+                    printf("  -arg, --applyalbumreplaygain\t Calculate album replaygain and apply it to the file(s) (track gain will be left empty)\n");
                     printf("  -v, --version\t\t\t Show program version\n");
                     return EXIT_SUCCESS;
                 }
@@ -373,10 +377,64 @@ int main(int argc, char* argv[])
 
         if (strcmp(argv[j], "-atrg") == 0 || strcmp(argv[j], "--applytrackreplaygain") == 0)
         {
-            op::ReplayGainByTrack trackGainInfo = op::CalculateReplayGainTrack(gb::inputFile);
-            op::ReplayGainByAlbum albumGainInfo; // leave empty since we only want to apply track gain info
-            op::ApplyReplayGain(gb::inputFile, trackGainInfo, albumGainInfo);
-            yay("ReplayGain applied successfully!");
+            if (fs::is_directory(gb::inputFile)) {
+                std::vector<fs::path> tracks;
+                for (const auto& entry : fs::directory_iterator(gb::inputFile)) {
+                    if (!entry.is_regular_file()) {
+                        continue;
+                    }
+                    if (!fc::IsValidAudioFile(entry.path())) {
+                        continue;
+                    }
+                    tracks.push_back(entry.path());
+                }
+
+                if (tracks.empty()) {
+                    warn("No valid audio files found in directory for track replaygain application.");
+                } else {
+                    const unsigned int hardwareThreads = std::thread::hardware_concurrency();
+                    const std::size_t desiredWorkers = std::max<std::size_t>(1, static_cast<std::size_t>(hardwareThreads / 2));
+                    const std::size_t workerCount = std::min<std::size_t>(desiredWorkers, tracks.size());
+                    std::vector<op::ReplayGainByTrack> trackResults(tracks.size(), op::ReplayGainByTrack{0.0f, 0.0f});
+                    std::atomic<std::size_t> nextIndex{0};
+                    std::vector<std::future<void>> workers;
+                    workers.reserve(workerCount);
+
+                    for (std::size_t worker = 0; worker < workerCount; ++worker) {
+                        workers.push_back(std::async(std::launch::async, [&]() {
+                            while (true) {
+                                const std::size_t index = nextIndex.fetch_add(1);
+                                if (index >= tracks.size()) {
+                                    break;
+                                }
+                                trackResults[index] = op::CalculateReplayGainTrack(tracks[index]);
+                            }
+                        }));
+                    }
+
+                    for (auto& worker : workers) {
+                        worker.get();
+                    }
+
+                    op::ReplayGainByAlbum albumGainInfo; // leave empty since we only want to apply track gain info
+                    for (std::size_t i = 0; i < tracks.size(); ++i) {
+                        op::ApplyReplayGain(tracks[i], trackResults[i], albumGainInfo);
+                    }
+
+                    yay(("Track ReplayGain applied successfully to " + std::to_string(tracks.size()) + " file(s)!").c_str());
+                }
+            } else {
+                op::ReplayGainByTrack trackGainInfo = op::CalculateReplayGainTrack(gb::inputFile);
+                op::ReplayGainByAlbum albumGainInfo; // leave empty since we only want to apply track gain info
+                op::ApplyReplayGain(gb::inputFile, trackGainInfo, albumGainInfo);
+                yay("ReplayGain applied successfully!");
+            }
+        }
+
+        if (strcmp(argv[j], "-aag") == 0 || strcmp(argv[j], "--applyalbumgain") == 0)
+        {
+            op::CalculateReplayGainAlbum(gb::inputFile);
+            yay("Album ReplayGain applied successfully!");
         }
     
     }
