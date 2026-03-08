@@ -184,3 +184,6 @@ Build fails due to missing headers:
 
 Well no contributors yet... however, as per usual with FOSS projects, this project was made by programmers with free time and hobbyists. I am just a highschool-college student hybrid thingy mabob, so any sort of contribution really helps :D. Use the contact info above if you're interested in becoming a maintainer, or just leave a pull request and I'll take a look at it. May you have a good morning/evening/night!
 
+<a href="https://github.com/Ray17x/bitfake2/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=Ray17x/bitfake2" />
+</a>
