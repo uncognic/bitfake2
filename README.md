@@ -16,6 +16,7 @@ One common problem was that getting a track’s metadata required long `ffprobe`
 * Calculating ReplayGain and applying it to files (Works for track replay gain iterating through directories, album replay gain is a bit funky?)
 * Directory Conversion (works for all previously mentioned formats!)
 * CoverArt+ (Brings along cover art among all conversions!)
+* Organzing Files by album! (Give a dir of random music, and bitfake will organize it - ty to uncognic)
 * Version info (WOW! BEST YET!)
 
 ## Implemented Development Features
